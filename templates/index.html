@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Localization QA Assistant</title>
+
+<style>
+table {
+    border-collapse: collapse;
+    width: 90%;
+}
+
+th {
+    background-color: #333;
+    color: white;
+}
+</style>
+
+</head>
+<body>
+
+<h2>Upload Translation CSV</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Run QA</button>
+</form>
+
+{% if results %}
+<h3>QA Results</h3>
+
+<table border="1" cellpadding="10">
+<tr>
+    <th>English</th>
+    <th>Hindi</th>
+    <th>Issues</th>
+    <th>AI Suggestion</th>
+</tr>
+
+{% for row in results %}
+<tr>
+    <td>{{ row.English }}</td>
+    <td>{{ row.Hindi }}</td>
+
+    {% if "Missing Translation" in row.Issues %}
+        <td style="background-color:#ffcccc;">{{ row.Issues }}</td>
+
+    {% elif "Contains English Text" in row.Issues %}
+        <td style="background-color:#cce5ff;">{{ row.Issues }}</td>
+
+    {% elif "Use preferred term" in row.Issues %}
+        <td style="background-color:#fff3cd;">{{ row.Issues }}</td>
+
+    {% elif "OK" in row.Issues %}
+        <td style="background-color:#d4edda;">{{ row.Issues }}</td>
+
+    {% else %}
+        <td>{{ row.Issues }}</td>
+    {% endif %}
+
+    <td style="background-color:#e2e3ff;">
+        {{ row.Suggestion }}
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+<form method="POST" action="/export">
+    <input type="hidden" name="results" value='{{ results | tojson }}'>
+    <button type="submit">Download QA Report</button>
+</form>
+
+{% endif %}
+
+
+
+</body>
+</html>
